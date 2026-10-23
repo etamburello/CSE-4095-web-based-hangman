@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import uuid
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
 from game import HangmanGame, InvalidGuessError
 from word_manager import InvalidDifficultyError, WordManager
@@ -65,6 +65,10 @@ def create_app(word_manager: WordManager | None = None) -> Flask:
         except InvalidGuessError as exc:
             return _error(str(exc), 400)
         return jsonify(_public_state(game_id, game))
+
+    @app.get("/")
+    def home():
+        return send_from_directory(app.static_folder, "index.html")
 
     return app
 

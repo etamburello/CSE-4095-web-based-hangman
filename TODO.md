@@ -144,21 +144,21 @@ Tests cover all three difficulties, correct and incorrect guesses, repeated and 
 
 ### Tasks
 
-- [ ] Create `static/index.html`, `static/style.css`, and `static/app.js`.
-- [ ] Serve the page from Flask at `/`.
-- [ ] Add an Easy / Medium / Hard selector.
-- [ ] Add a New Game button that starts a game through `POST /api/games`.
-- [ ] Display the current word pattern.
-- [ ] Display previously guessed letters and incorrect letters.
-- [ ] Display the number of remaining incorrect guesses.
-- [ ] Add an on-screen A–Z keyboard and physical keyboard input.
-- [ ] Disable letters that have already been guessed.
-- [ ] Submit every guess with `fetch()` to `POST /api/games/{game_id}/guess`.
-- [ ] Draw the hangman figure and update it as incorrect guesses accumulate.
-- [ ] Show a win or loss message, and show the word only after the server reveals it.
-- [ ] Let the player start another game without reloading the page.
-- [ ] Keep the layout usable on a desktop window and a narrow phone-sized window.
-- [ ] Add tests that the served page contains the controls and does not embed a word list or a hidden word.
+- [x] Create `static/index.html`, `static/style.css`, and `static/app.js`.
+- [x] Serve the page from Flask at `/`.
+- [x] Add an Easy / Medium / Hard selector.
+- [x] Add a New Game button that starts a game through `POST /api/games`.
+- [x] Display the current word pattern.
+- [x] Display previously guessed letters and incorrect letters.
+- [x] Display the number of remaining incorrect guesses.
+- [x] Add an on-screen A–Z keyboard and physical keyboard input.
+- [x] Disable letters that have already been guessed.
+- [x] Submit every guess with `fetch()` to `POST /api/games/{game_id}/guess`.
+- [x] Draw the hangman figure and update it as incorrect guesses accumulate.
+- [x] Show a win or loss message, and show the word only after the server reveals it.
+- [x] Let the player start another game without reloading the page.
+- [x] Keep the layout usable on a desktop window and a narrow phone-sized window.
+- [x] Add tests that the served page contains the controls and does not embed a word list or a hidden word.
 
 ### Completion Criteria
 

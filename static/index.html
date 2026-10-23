@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hangman</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <h1>Hangman</h1>
+    <form id="setup" class="controls" autocomplete="off">
+      <label for="difficulty">Difficulty
+        <select id="difficulty" name="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+      <button type="submit" id="new-game-button">New Game</button>
+    </form>
+    <p id="notice" role="status">Pick a difficulty and begin.</p>
+    <p id="reveal" hidden></p>
+    <section class="board">
+      <div class="gallows">
+        <svg id="hangman" viewBox="0 0 160 220" aria-hidden="true">
+          <line class="stand" x1="20" y1="200" x2="140" y2="200"></line>
+          <line class="stand" x1="40" y1="200" x2="40" y2="20"></line>
+          <line class="stand" x1="40" y1="20" x2="104" y2="20"></line>
+          <line class="stand" x1="104" y1="20" x2="104" y2="46"></line>
+          <circle id="part-1" class="limb" cx="104" cy="64" r="16"></circle>
+          <line id="part-2" class="limb" x1="104" y1="80" x2="104" y2="132"></line>
+          <line id="part-3" class="limb" x1="104" y1="96" x2="76" y2="118"></line>
+          <line id="part-4" class="limb" x1="104" y1="96" x2="132" y2="118"></line>
+          <line id="part-5" class="limb" x1="104" y1="132" x2="78" y2="170"></line>
+          <line id="part-6" class="limb" x1="104" y1="132" x2="130" y2="170"></line>
+        </svg>
+      </div>
+      <div class="readout">
+        <p id="pattern" class="pattern">—</p>
+        <dl class="facts">
+          <div>
+            <dt>Remaining</dt>
+            <dd id="remaining">—</dd>
+          </div>
+          <div>
+            <dt>Guessed</dt>
+            <dd id="guessed">—</dd>
+          </div>
+          <div>
+            <dt>Incorrect</dt>
+            <dd id="incorrect">—</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+    <div id="keyboard" class="keyboard" role="group" aria-label="Letters">
+      <button type="button" class="key" data-letter="a" disabled>A</button>
+      <button type="button" class="key" data-letter="b" disabled>B</button>
+      <button type="button" class="key" data-letter="c" disabled>C</button>
+      <button type="button" class="key" data-letter="d" disabled>D</button>
+      <button type="button" class="key" data-letter="e" disabled>E</button>
+      <button type="button" class="key" data-letter="f" disabled>F</button>
+      <button type="button" class="key" data-letter="g" disabled>G</button>
+      <button type="button" class="key" data-letter="h" disabled>H</button>
+      <button type="button" class="key" data-letter="i" disabled>I</button>
+      <button type="button" class="key" data-letter="j" disabled>J</button>
+      <button type="button" class="key" data-letter="k" disabled>K</button>
+      <button type="button" class="key" data-letter="l" disabled>L</button>
+      <button type="button" class="key" data-letter="m" disabled>M</button>
+      <button type="button" class="key" data-letter="n" disabled>N</button>
+      <button type="button" class="key" data-letter="o" disabled>O</button>
+      <button type="button" class="key" data-letter="p" disabled>P</button>
+      <button type="button" class="key" data-letter="q" disabled>Q</button>
+      <button type="button" class="key" data-letter="r" disabled>R</button>
+      <button type="button" class="key" data-letter="s" disabled>S</button>
+      <button type="button" class="key" data-letter="t" disabled>T</button>
+      <button type="button" class="key" data-letter="u" disabled>U</button>
+      <button type="button" class="key" data-letter="v" disabled>V</button>
+      <button type="button" class="key" data-letter="w" disabled>W</button>
+      <button type="button" class="key" data-letter="x" disabled>X</button>
+      <button type="button" class="key" data-letter="y" disabled>Y</button>
+      <button type="button" class="key" data-letter="z" disabled>Z</button>
+    </div>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
