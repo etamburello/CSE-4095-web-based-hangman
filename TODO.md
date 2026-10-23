@@ -220,19 +220,19 @@ Deploy to Render, or another host that runs a Python web process. GitHub Pages i
 
 ### Tasks
 
-- [ ] Add a production start command that binds one worker to `$PORT`:
+- [x] Add a production start command that binds one worker to `$PORT`:
 
     ```bash
     gunicorn --bind 0.0.0.0:$PORT --workers 1 server:app
     ```
 
-- [ ] Keep debug mode off in production. One worker shares the in-memory games.
-- [ ] Add the host configuration, such as `render.yaml`, and document the build and start commands.
-- [ ] Deploy from the project repository.
-- [ ] Open the public HTTPS URL and confirm the Hangman page loads.
-- [ ] Create a game, make guesses, finish the game, and start another game in the deployed browser UI.
-- [ ] Confirm `POST /api/games`, `GET /api/games/{game_id}`, and `POST /api/games/{game_id}/guess` respond on the public URL.
-- [ ] Confirm a visitor can play without installing Python or running a local server.
+- [x] Keep debug mode off in production. One worker shares the in-memory games.
+- [x] Add the host configuration, such as `render.yaml`, and document the build and start commands.
+- [x] Deploy from the project repository.
+- [x] Open the public HTTPS URL and confirm the Hangman page loads.
+- [x] Create a game, make guesses, finish the game, and start another game in the deployed browser UI.
+- [x] Confirm `POST /api/games`, `GET /api/games/{game_id}`, and `POST /api/games/{game_id}/guess` respond on the public URL.
+- [x] Confirm a visitor can play without installing Python or running a local server.
 
 ### Completion Criteria
 

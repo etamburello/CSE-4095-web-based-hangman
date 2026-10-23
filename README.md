@@ -139,6 +139,6 @@ Start command:
 gunicorn --bind 0.0.0.0:$PORT --workers 1 server:app
 ```
 
-`render.yaml` is a Render Blueprint for a free web service with those commands. Connect the GitHub repository, apply the Blueprint, and open the `https://….onrender.com` address. A visitor can play in the browser without installing Python.
+`render.yaml` is a Render Blueprint for a free web service with those commands. The deployed site is [https://cse-4095-hangman.onrender.com](https://cse-4095-hangman.onrender.com). A visitor can play in the browser without installing Python.
 
 On the free plan the service sleeps after about 15 minutes of idle time. The first request after that can take up to a minute. Restarting the service clears games still in memory.
