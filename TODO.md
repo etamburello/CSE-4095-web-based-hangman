@@ -65,21 +65,21 @@ The engine can be tested with a word passed in directly. Word files and Flask ar
 
 ### Tasks
 
-- [ ] Create `game.py`.
-- [ ] Implement a `HangmanGame` class that stores the hidden word internally.
-- [ ] Track guessed letters and incorrect letters separately.
-- [ ] Allow six incorrect guesses by default.
-- [ ] Accept one alphabetic letter per guess and normalize it to lowercase.
-- [ ] Reject empty, multi-character, non-letter, and duplicate guesses.
-- [ ] Reject any guess after the game is won or lost.
-- [ ] Build the spaced word pattern.
-- [ ] Decrement remaining guesses only for a new incorrect letter.
-- [ ] Detect a win when every letter is revealed.
-- [ ] Detect a loss when remaining guesses reach 0 and letters are still hidden.
-- [ ] Use status values `playing`, `won`, and `lost`.
-- [ ] Return a client-safe state dictionary.
-- [ ] Include `word` in that dictionary only after a win or loss.
-- [ ] Add unit tests for the rules above.
+- [x] Create `game.py`.
+- [x] Implement a `HangmanGame` class that stores the hidden word internally.
+- [x] Track guessed letters and incorrect letters separately.
+- [x] Allow six incorrect guesses by default.
+- [x] Accept one alphabetic letter per guess and normalize it to lowercase.
+- [x] Reject empty, multi-character, non-letter, and duplicate guesses.
+- [x] Reject any guess after the game is won or lost.
+- [x] Build the spaced word pattern.
+- [x] Decrement remaining guesses only for a new incorrect letter.
+- [x] Detect a win when every letter is revealed.
+- [x] Detect a loss when remaining guesses reach 0 and letters are still hidden.
+- [x] Use status values `playing`, `won`, and `lost`.
+- [x] Return a client-safe state dictionary.
+- [x] Include `word` in that dictionary only after a win or loss.
+- [x] Add unit tests for the rules above.
 
 ### Completion Criteria
 
