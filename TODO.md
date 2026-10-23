@@ -174,17 +174,17 @@ Confirm every testing requirement before deployment. Fill any gap with an automa
 
 ### Tasks
 
-- [ ] Start games at easy, medium, and hard.
-- [ ] Record a correct guess and an incorrect guess.
-- [ ] Reject a repeated guess and an invalid guess without changing state.
-- [ ] Win a game and confirm the word is revealed only then.
-- [ ] Lose a game and confirm the word is revealed only then.
-- [ ] Start a new game after a completed game and confirm the new id and pattern.
-- [ ] Reject invalid API requests: bad difficulty, missing letter, non-JSON body, unknown game id.
-- [ ] Confirm active-game responses have no `word` field and no other answer field.
-- [ ] In the browser, confirm the pattern, guessed letters, remaining guesses, drawing, and win/loss message update after each guess.
-- [ ] In the browser, confirm keyboard and button guesses both reach the API.
-- [ ] In the browser, confirm a second game starts without a reload.
+- [x] Start games at easy, medium, and hard.
+- [x] Record a correct guess and an incorrect guess.
+- [x] Reject a repeated guess and an invalid guess without changing state.
+- [x] Win a game and confirm the word is revealed only then.
+- [x] Lose a game and confirm the word is revealed only then.
+- [x] Start a new game after a completed game and confirm the new id and pattern.
+- [x] Reject invalid API requests: bad difficulty, missing letter, non-JSON body, unknown game id.
+- [x] Confirm active-game responses have no `word` field and no other answer field.
+- [x] In the browser, confirm the pattern, guessed letters, remaining guesses, drawing, and win/loss message update after each guess.
+- [x] In the browser, confirm keyboard and button guesses both reach the API.
+- [x] In the browser, confirm a second game starts without a reload.
 
 ### Completion Criteria
 

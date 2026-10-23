@@ -9,6 +9,33 @@ from word_manager import DIFFICULTIES, WordManager
 from server import create_app
 
 
+PLAYING_FIELDS = {
+    "game_id",
+    "pattern",
+    "guessed_letters",
+    "incorrect_letters",
+    "remaining_guesses",
+    "status",
+}
+FINISHED_FIELDS = PLAYING_FIELDS | {"word"}
+
+
+def assert_public_fields(test, payload, secret=None):
+    """A playing game exposes only the public fields, never an answer."""
+    if payload.get("status") == "playing":
+        test.assertEqual(set(payload), PLAYING_FIELDS)
+    else:
+        test.assertEqual(set(payload), FINISHED_FIELDS)
+    if secret is None or payload.get("status") != "playing":
+        return
+    test.assertNotEqual(payload["pattern"].replace(" ", ""), secret)
+    for value in payload.values():
+        if isinstance(value, str):
+            test.assertNotEqual(value, secret)
+        elif isinstance(value, list):
+            test.assertNotIn(secret, value)
+
+
 class FixedWordApiTests(unittest.TestCase):
     def setUp(self):
         self._directory = tempfile.TemporaryDirectory()
@@ -208,13 +235,7 @@ class FixedWordApiTests(unittest.TestCase):
         return response.get_json()["game_id"]
 
     def _assert_word_hidden(self, payload: dict, secret: str) -> None:
-        self.assertNotIn("word", payload)
-        self.assertNotEqual(payload["pattern"].replace(" ", ""), secret)
-        for value in payload.values():
-            if isinstance(value, str):
-                self.assertNotEqual(value, secret)
-            elif isinstance(value, list):
-                self.assertNotIn(secret, value)
+        assert_public_fields(self, payload, secret)
 
 
 class ShippedWordListApiTests(unittest.TestCase):
@@ -228,7 +249,7 @@ class ShippedWordListApiTests(unittest.TestCase):
                 self.assertEqual(created.status_code, 201)
                 state = created.get_json()
                 self.assertEqual(state["status"], "playing")
-                self.assertNotIn("word", state)
+                assert_public_fields(self, state)
                 game_id = state["game_id"]
                 slots = state["pattern"].split(" ")
 
@@ -244,12 +265,13 @@ class ShippedWordListApiTests(unittest.TestCase):
                         continue
                     final = response.get_json()
                     if final["status"] == "playing":
-                        self.assertNotIn("word", final)
+                        assert_public_fields(self, final)
                         continue
                     break
 
                 self.assertIsNotNone(final)
                 self.assertIn(final["status"], ("won", "lost"))
+                assert_public_fields(self, final)
                 self.assertIn(final["word"], manager.words(difficulty))
                 self.assertEqual(len(slots), len(final["word"]))
                 self.assertEqual(len(slots), len(final["pattern"].split(" ")))
