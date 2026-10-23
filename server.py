@@ -101,4 +101,6 @@ app = create_app()
 
 
 if __name__ == "__main__":
+    # Local development only. Gunicorn imports `app` and does not run this
+    # block, so a deployed process stays out of debug mode.
     app.run(host="127.0.0.1", port=5000, debug=True)

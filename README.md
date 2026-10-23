@@ -122,3 +122,23 @@ A finished game adds the answer:
   "word": "eagle"
 }
 ```
+
+## Deploy
+
+The hosted app runs as one process so every player shares the same in-memory games. Debug mode is off. Render provides `PORT`.
+
+Build command:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start command:
+
+```bash
+gunicorn --bind 0.0.0.0:$PORT --workers 1 server:app
+```
+
+`render.yaml` is a Render Blueprint for a free web service with those commands. Connect the GitHub repository, apply the Blueprint, and open the `https://….onrender.com` address. A visitor can play in the browser without installing Python.
+
+On the free plan the service sleeps after about 15 minutes of idle time. The first request after that can take up to a minute. Restarting the service clears games still in memory.
