@@ -93,13 +93,13 @@ Correct guesses, incorrect guesses, invalid guesses, duplicate guesses, wins, lo
 
 ### Tasks
 
-- [ ] Add `words/easy.txt`, `words/medium.txt`, and `words/hard.txt`.
-- [ ] Create a word-loading module that is independent of Flask and the browser.
-- [ ] Load each difficulty list.
-- [ ] Lowercase words, skip blanks, drop duplicates, and reject non-alphabetic entries.
-- [ ] Select a random word by difficulty: `easy`, `medium`, or `hard`.
-- [ ] Reject an unknown difficulty with a clear error.
-- [ ] Add tests for loading, validation, random selection, and invalid difficulty.
+- [x] Add `words/easy.txt`, `words/medium.txt`, and `words/hard.txt`.
+- [x] Create a word-loading module that is independent of Flask and the browser.
+- [x] Load each difficulty list.
+- [x] Lowercase words, skip blanks, drop duplicates, and reject non-alphabetic entries.
+- [x] Select a random word by difficulty: `easy`, `medium`, or `hard`.
+- [x] Reject an unknown difficulty with a clear error.
+- [x] Add tests for loading, validation, random selection, and invalid difficulty.
 
 ### Completion Criteria
 
