@@ -202,11 +202,11 @@ python3 -m unittest discover -s tests -t . -v
 
 ### Tasks
 
-- [ ] Document installation, how to start the server, and how to open the browser client.
-- [ ] Document the three REST endpoints with example requests and responses.
-- [ ] Document the guess rules and the point at which the word is revealed.
-- [ ] Pin runtime dependencies in `requirements.txt`, including a production server.
-- [ ] Run the app from the documented commands on a fresh local start.
+- [x] Document installation, how to start the server, and how to open the browser client.
+- [x] Document the three REST endpoints with example requests and responses.
+- [x] Document the guess rules and the point at which the word is revealed.
+- [x] Pin runtime dependencies in `requirements.txt`, including a production server.
+- [x] Run the app from the documented commands on a fresh local start.
 
 ### Completion Criteria
 
