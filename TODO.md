@@ -1,429 +1,265 @@
-# TODO — Hangman Client/Server Project
+# TODO — Web-Based Hangman
 
-This file is the implementation roadmap for the Hangman project.
+This file is the implementation roadmap for the web Hangman assignment.
 
-The authoritative system requirements are defined in `Hangman_Project_Specification.md`.
+The required work is the Hangman server and the browser client. A terminal client, automated bots, bot evaluation, scoring, and a leaderboard are out of scope. `Specification.md` and `cursor_transcript.md` are reference material for the game rules, the REST contract, and a Render deployment. Where this plan and the larger specification disagree, this plan wins.
 
 ## Implementation Rules
 
 - Implement one phase at a time.
-- Complete and test all items in the current phase before moving to the next phase.
-- Do not change the architecture or REST API defined in `Hangman_Project_Specification.md` unless necessary.
-- If a deviation is necessary, document it in the README and update the specification.
-- Keep the game engine independent from Flask, the browser UI, and the terminal UI.
-- The server must remain authoritative.
-- Never expose the hidden word before a game ends.
-- Add tests as each phase is implemented rather than postponing testing until the end.
+- Complete and test every item in the current phase before starting the next phase.
+- Keep the game engine independent of Flask and the browser.
+- The server is authoritative. The browser displays server state and submits guesses. It does not decide whether a guess is correct.
+- Never send the hidden word while `status` is `playing`.
+- Add tests as each phase is implemented. Phase 5 checks the assignment’s full verification list before deployment.
+- Do not implement the out-of-scope features listed above.
+
+## Decisions locked in for this assignment
+
+The specification leaves a few choices open. Use these so the API stays stable:
+
+| Decision | Choice |
+|---|---|
+| Framework | Flask |
+| Incorrect guesses allowed | 6 |
+| Duplicate guesses | Reject. Do not change game state. |
+| Guesses after the game ends | Reject |
+| Invalid guesses | Reject empty, multi-character, and non-letter input |
+| Letter case | Normalize words and guesses to lowercase |
+| Word pattern | Spaces between characters, as in `"_ e _ _ e"` |
+| Answer field | `word`, included only when `status` is `won` or `lost` |
+| Game storage | In memory, one process. A restart clears active games. |
+| Error body | JSON object with an `error` string |
+
+Create-game response:
+
+```json
+{
+    "game_id": "abc123",
+    "pattern": "_ _ _ _ _",
+    "remaining_guesses": 6,
+    "status": "playing"
+}
+```
+
+Guess and get-state responses use the same shape. `game_id` is optional on get and guess. Include `guessed_letters` and `incorrect_letters` on every state response, including create. Include `word` only after the game ends.
+
+```json
+{
+    "game_id": "abc123",
+    "pattern": "_ e _ _ e",
+    "guessed_letters": ["e"],
+    "incorrect_letters": [],
+    "remaining_guesses": 6,
+    "status": "playing"
+}
+```
+
+HTTP status codes: `201` on create, `200` on get and a successful guess, `400` for invalid input, `404` for an unknown game id.
 
 ---
 
-## Phase 1 — Project Skeleton and Core Game Engine
+## Phase 1 — Core Game Engine
+
+The engine can be tested with a word passed in directly. Word files and Flask are not part of this phase.
 
 ### Tasks
 
-- [x] Create the project directory structure.
-- [x] Add `words/easy.txt`.
-- [x] Add `words/medium.txt`.
-- [x] Add `words/hard.txt`.
-- [x] Create `game.py`.
-- [x] Implement a `HangmanGame` class.
-- [x] Store the hidden word internally.
-- [x] Track guessed letters.
-- [x] Track incorrect letters.
-- [x] Track the maximum number of incorrect guesses.
-- [x] Implement single-letter guess validation.
-- [x] Detect duplicate guesses.
-- [x] Implement masked-word generation.
-- [x] Implement win detection.
-- [x] Implement loss detection.
-- [x] Implement game status values such as `playing`, `won`, and `lost`.
-- [x] Implement a method that returns a client-safe game-state dictionary.
-- [x] Reveal the answer only after the game ends.
-- [x] Add unit tests for the game engine.
+- [ ] Create `game.py`.
+- [ ] Implement a `HangmanGame` class that stores the hidden word internally.
+- [ ] Track guessed letters and incorrect letters separately.
+- [ ] Allow six incorrect guesses by default.
+- [ ] Accept one alphabetic letter per guess and normalize it to lowercase.
+- [ ] Reject empty, multi-character, non-letter, and duplicate guesses.
+- [ ] Reject any guess after the game is won or lost.
+- [ ] Build the spaced word pattern.
+- [ ] Decrement remaining guesses only for a new incorrect letter.
+- [ ] Detect a win when every letter is revealed.
+- [ ] Detect a loss when remaining guesses reach 0 and letters are still hidden.
+- [ ] Use status values `playing`, `won`, and `lost`.
+- [ ] Return a client-safe state dictionary.
+- [ ] Include `word` in that dictionary only after a win or loss.
+- [ ] Add unit tests for the rules above.
 
 ### Completion Criteria
 
-The game engine can be tested entirely without running a web server.
+The game engine can be tested without a web server, a browser, or the word files.
 
-All core rules are covered by unit tests.
+Correct guesses, incorrect guesses, invalid guesses, duplicate guesses, wins, losses, and answer disclosure are covered by unit tests.
 
 ---
 
-## Phase 2 — Word Management
+## Phase 2 — Word Lists and Difficulty
 
 ### Tasks
 
-- [x] Create a word-loading module or helper functions.
-- [x] Load Easy, Medium, and Hard word lists.
-- [x] Validate that loaded words contain only alphabetic characters.
-- [x] Remove accidental duplicates when loading.
-- [x] Support random word selection by difficulty.
-- [x] Return an error for an invalid difficulty.
-- [x] Add tests for word loading and word selection.
+- [ ] Add `words/easy.txt`, `words/medium.txt`, and `words/hard.txt`.
+- [ ] Create a word-loading module that is independent of Flask and the browser.
+- [ ] Load each difficulty list.
+- [ ] Lowercase words, skip blanks, drop duplicates, and reject non-alphabetic entries.
+- [ ] Select a random word by difficulty: `easy`, `medium`, or `hard`.
+- [ ] Reject an unknown difficulty with a clear error.
+- [ ] Add tests for loading, validation, random selection, and invalid difficulty.
 
 ### Completion Criteria
 
-The program can request a random word from each difficulty level reliably.
+The program can request a random word for each difficulty.
 
 Invalid difficulty values are rejected cleanly.
 
+The game engine still does not import Flask.
+
 ---
 
-## Phase 3 — Basic REST Server
+## Phase 3 — Flask Server and REST API
 
 ### Tasks
 
-- [x] Create `server.py`.
-- [x] Configure Flask or FastAPI.
-- [x] Add in-memory storage for active games.
-- [x] Generate unique game IDs.
-- [x] Implement `POST /api/games`.
-- [x] Implement `GET /api/games/{game_id}`.
-- [x] Implement `POST /api/games/{game_id}/guess`.
-- [x] Validate difficulty input.
-- [x] Validate guess input.
-- [x] Return JSON responses consistently.
-- [x] Return appropriate HTTP status codes.
-- [x] Handle unknown game IDs.
-- [x] Handle malformed requests.
-- [x] Ensure the hidden word is never leaked during an active game.
-- [x] Add API tests.
+- [ ] Create `server.py` and `requirements.txt` with Flask.
+- [ ] Create the Flask application and an in-memory store of active games.
+- [ ] Generate a unique id for each game.
+- [ ] Keep a separate `HangmanGame` for each id.
+- [ ] Implement `POST /api/games` with a JSON body `{"difficulty": "medium"}`.
+- [ ] Select the hidden word on the server from the requested difficulty.
+- [ ] Implement `GET /api/games/{game_id}`.
+- [ ] Implement `POST /api/games/{game_id}/guess` with a JSON body `{"letter": "e"}`.
+- [ ] Validate difficulty and guess input.
+- [ ] Return JSON for success and error responses.
+- [ ] Return `201`, `200`, `400`, and `404` as defined above.
+- [ ] Handle an unknown game id, a missing body, and malformed JSON.
+- [ ] Omit the hidden word from every response while `status` is `playing`.
+- [ ] Add API tests that play through the HTTP interface only.
 
 ### Completion Criteria
 
-A complete Hangman game can be played using only `curl` or another HTTP client.
+A complete game can be played with `curl` or another HTTP client.
 
-The browser and terminal clients are not required for this phase.
+The browser is not required for this phase.
+
+Tests cover all three difficulties, correct and incorrect guesses, repeated and invalid guesses, win and loss, a new game after a finished one, invalid requests, and the rule that the hidden word stays on the server during play.
 
 ---
 
-## Phase 4 — Human Terminal Client
+## Phase 4 — Browser Client
 
 ### Tasks
 
-- [x] Create `terminal_client.py`.
-- [x] Connect to the Hangman server over HTTP.
-- [x] Let the user choose Easy, Medium, or Hard.
-- [x] Start a new game through the REST API.
-- [x] Display the masked word.
-- [x] Display guessed letters.
-- [x] Display incorrect letters.
-- [x] Display remaining incorrect guesses.
-- [x] Prompt for one letter at a time.
-- [x] Submit guesses through the REST API.
-- [x] Handle invalid input locally when appropriate.
-- [x] Handle server errors gracefully.
-- [x] Display win and loss messages.
-- [x] Allow the user to start another game.
+- [ ] Create `static/index.html`, `static/style.css`, and `static/app.js`.
+- [ ] Serve the page from Flask at `/`.
+- [ ] Add an Easy / Medium / Hard selector.
+- [ ] Add a New Game button that starts a game through `POST /api/games`.
+- [ ] Display the current word pattern.
+- [ ] Display previously guessed letters and incorrect letters.
+- [ ] Display the number of remaining incorrect guesses.
+- [ ] Add an on-screen A–Z keyboard and physical keyboard input.
+- [ ] Disable letters that have already been guessed.
+- [ ] Submit every guess with `fetch()` to `POST /api/games/{game_id}/guess`.
+- [ ] Draw the hangman figure and update it as incorrect guesses accumulate.
+- [ ] Show a win or loss message, and show the word only after the server reveals it.
+- [ ] Let the player start another game without reloading the page.
+- [ ] Keep the layout usable on a desktop window and a narrow phone-sized window.
+- [ ] Add tests that the served page contains the controls and does not embed a word list or a hidden word.
 
 ### Completion Criteria
 
-A human player can play a full game from a terminal without using the browser.
+A player can finish a game in the browser against the local server, then start another game on the same page.
 
-The terminal client contains no Hangman game logic beyond presentation and input handling.
+No hidden word and no independent game engine live in the browser JavaScript. The page renders the state returned by the API.
 
 ---
 
-## Phase 5 — Browser Client
+## Phase 5 — Assignment Verification
+
+Confirm every testing requirement before deployment. Fill any gap with an automated test. Use the browser for the drawing, keyboard, and new-game flow.
 
 ### Tasks
 
-- [x] Create `static/index.html`.
-- [x] Create `static/style.css`.
-- [x] Create `static/app.js`.
-- [x] Add a difficulty selector.
-- [x] Add a New Game button.
-- [x] Display the masked word.
-- [x] Display guessed letters.
-- [x] Display incorrect letters.
-- [x] Display remaining guesses.
-- [x] Add an on-screen alphabet keyboard.
-- [x] Disable already-guessed letters.
-- [x] Use `fetch()` to communicate with the REST API.
-- [x] Draw the Hangman state visually.
-- [x] Update the drawing after incorrect guesses.
-- [x] Display win and loss messages.
-- [x] Provide a restart/new-game flow.
-- [x] Make the interface usable on common desktop and mobile browser sizes.
+- [ ] Start games at easy, medium, and hard.
+- [ ] Record a correct guess and an incorrect guess.
+- [ ] Reject a repeated guess and an invalid guess without changing state.
+- [ ] Win a game and confirm the word is revealed only then.
+- [ ] Lose a game and confirm the word is revealed only then.
+- [ ] Start a new game after a completed game and confirm the new id and pattern.
+- [ ] Reject invalid API requests: bad difficulty, missing letter, non-JSON body, unknown game id.
+- [ ] Confirm active-game responses have no `word` field and no other answer field.
+- [ ] In the browser, confirm the pattern, guessed letters, remaining guesses, drawing, and win/loss message update after each guess.
+- [ ] In the browser, confirm keyboard and button guesses both reach the API.
+- [ ] In the browser, confirm a second game starts without a reload.
 
 ### Completion Criteria
 
-A human player can play the same server-hosted game from a browser.
+The engine, the API, and the browser flow are all checked against the assignment’s testing list.
 
-No hidden word is stored in browser-side JavaScript.
+Automated tests pass with:
+
+```bash
+python3 -m unittest discover -s tests -t . -v
+```
 
 ---
 
-## Phase 6 — Reference Automated Clients
+## Phase 6 — Packaging
 
 ### Tasks
 
-- [x] Create `bot_examples/`.
-- [x] Implement `random_bot.py`.
-- [x] Implement `frequency_bot.py`.
-- [x] Define a common bot interaction pattern.
-- [x] Create a reusable HTTP client helper if useful.
-- [x] Make each bot capable of playing a complete game automatically.
-- [x] Print game results and summary statistics.
-- [x] Ensure bots use only information exposed through the REST API.
-- [x] Document how students can write their own bot.
+- [ ] Document installation, how to start the server, and how to open the browser client.
+- [ ] Document the three REST endpoints with example requests and responses.
+- [ ] Document the guess rules and the point at which the word is revealed.
+- [ ] Pin runtime dependencies in `requirements.txt`, including a production server.
+- [ ] Run the app from the documented commands on a fresh local start.
 
 ### Completion Criteria
 
-At least two automated clients can independently play games against the server.
-
-One bot should clearly outperform random guessing over many games.
+A new user can install dependencies, start the server, and play in a browser using only the documentation.
 
 ---
 
-## Phase 7 — Dictionary-Based Bot Example
+## Phase 7 — Cloud Deployment
+
+Deploy to Render, or another host that runs a Python web process. GitHub Pages is not sufficient because the game needs the Flask process.
 
 ### Tasks
 
-- [x] Implement `dictionary_bot.py`.
-- [x] Load an allowed training dictionary.
-- [x] Filter candidate words by current pattern.
-- [x] Remove candidates containing known incorrect letters.
-- [x] Respect known letter positions.
-- [x] Track letters already guessed.
-- [x] Compute candidate-letter frequencies.
-- [x] Choose the next letter using the remaining candidates.
-- [x] Fall back to global letter frequency if no candidates remain.
-- [x] Compare its performance against the random and frequency bots.
+- [ ] Add a production start command that binds one worker to `$PORT`:
+
+    ```bash
+    gunicorn --bind 0.0.0.0:$PORT --workers 1 server:app
+    ```
+
+- [ ] Keep debug mode off in production. One worker shares the in-memory games.
+- [ ] Add the host configuration, such as `render.yaml`, and document the build and start commands.
+- [ ] Deploy from the project repository.
+- [ ] Open the public HTTPS URL and confirm the Hangman page loads.
+- [ ] Create a game, make guesses, finish the game, and start another game in the deployed browser UI.
+- [ ] Confirm `POST /api/games`, `GET /api/games/{game_id}`, and `POST /api/games/{game_id}/guess` respond on the public URL.
+- [ ] Confirm a visitor can play without installing Python or running a local server.
 
 ### Completion Criteria
 
-The dictionary bot completes games without server-side knowledge and demonstrates a measurable improvement over simpler reference bots.
+The public HTTPS site serves the web interface and the REST API, and a complete game can be played in the browser.
+
+On Render’s free tier, the service may sleep after idle time. The first request after sleep can take up to a minute. Games in memory are cleared when the service restarts.
 
 ---
 
-## Phase 8 — Evaluation Mode
+## Out of Scope
 
-### Tasks
+Do not implement these, even though `Specification.md` and the later phases of the original TODO describe them:
 
-- [x] Separate normal game play from official evaluation mode.
-- [x] Add an evaluation-session model.
-- [x] Generate a unique evaluation ID.
-- [x] Define the number of evaluation games.
-- [x] Support evaluation across Easy, Medium, and Hard words.
-- [x] Ensure the server controls all evaluation words.
-- [x] Prevent skipping or restarting unfavorable evaluation games.
-- [x] Require games to be played in the intended sequence.
-- [x] Record wins and losses.
-- [x] Record total guesses.
-- [x] Record incorrect guesses.
-- [x] Record remaining guesses after wins.
-- [x] Record per-game results.
-- [x] Add evaluation API endpoints.
-- [x] Add tests for evaluation integrity.
+- Terminal client
+- Automated bots and dictionary strategies
+- Evaluation sessions, scoring, and a leaderboard
+- Logging and replay tools
+- Accounts, a database, and multiplayer
 
-### Completion Criteria
+## Recommended Order
 
-A bot can start an evaluation session, play every assigned game, and receive an official result summary.
-
-A client cannot choose or inspect the hidden evaluation words.
-
----
-
-## Phase 9 — Scoring System
-
-### Tasks
-
-- [x] Define the official scoring formula.
-- [x] Make wins the primary performance signal.
-- [x] Use guess efficiency as a secondary signal or tiebreaker.
-- [x] Define how losses are scored.
-- [x] Define how invalid guesses affect scoring.
-- [x] Define how duplicate guesses affect scoring.
-- [x] Define how abandoned games affect scoring.
-- [x] Record total score for each evaluation.
-- [x] Add tests for scoring calculations.
-- [x] Document the scoring rules clearly for students.
-
-### Completion Criteria
-
-Given the same game history, the scoring system always produces the same result.
-
-The scoring formula is simple enough to explain and verify independently.
-
----
-
-## Phase 10 — Leaderboard
-
-### Tasks
-
-- [x] Define a leaderboard record format.
-- [x] Store participant or bot name.
-- [x] Store total games.
-- [x] Store games won.
-- [x] Store win rate.
-- [x] Store average guesses.
-- [x] Store average remaining guesses on wins.
-- [x] Store total score.
-- [x] Rank results consistently.
-- [x] Add a leaderboard API endpoint.
-- [x] Add a browser leaderboard view.
-- [x] Display rankings in the terminal if useful.
-- [x] Decide whether leaderboard data should persist across server restarts.
-
-### Completion Criteria
-
-Completed evaluation runs can be ranked automatically and displayed consistently.
-
----
-
-## Phase 11 — Evaluation Integrity and Anti-Cheating Safeguards
-
-### Tasks
-
-- [x] Ensure game state responses never contain the answer while status is `playing`.
-- [x] Ensure evaluation words are server-controlled.
-- [x] Prevent clients from requesting arbitrary evaluation game IDs.
-- [x] Reject malformed or unauthorized evaluation requests.
-- [x] Add optional rate limiting if needed.
-- [x] Add optional per-request timeout rules.
-- [x] Log evaluation actions.
-- [x] Detect repeated invalid guesses.
-- [x] Define behavior for disconnected clients.
-- [x] Define behavior for incomplete evaluations.
-- [x] Keep training word lists separate from hidden evaluation lists if desired.
-
-### Completion Criteria
-
-A student can solve the assignment using the documented API, but cannot gain the hidden word through normal API responses.
-
----
-
-## Phase 12 — Logging and Replay
-
-### Tasks
-
-- [x] Define a game-log format.
-- [x] Record game ID.
-- [x] Record difficulty.
-- [x] Record each guess in order.
-- [x] Record whether each guess was correct.
-- [x] Record pattern after each guess.
-- [x] Record remaining guesses after each move.
-- [x] Record final outcome.
-- [x] Add optional timestamps.
-- [x] Add a replay utility or endpoint.
-- [x] Ensure logs do not expose hidden evaluation words before evaluation completion.
-
-### Completion Criteria
-
-An instructor can inspect or replay a completed game step by step for debugging or grading.
-
----
-
-## Phase 13 — Testing
-
-### Tasks
-
-- [x] Complete unit tests for `HangmanGame`.
-- [x] Complete tests for word loading.
-- [x] Complete REST API tests.
-- [x] Test duplicate guesses.
-- [x] Test invalid letters.
-- [x] Test invalid difficulty.
-- [x] Test missing game IDs.
-- [x] Test win paths.
-- [x] Test loss paths.
-- [x] Test answer disclosure rules.
-- [x] Test terminal-client integration.
-- [x] Test browser-client integration.
-- [x] Test automated bots.
-- [x] Test evaluation sessions.
-- [x] Test scoring.
-- [x] Test leaderboard ordering.
-- [x] Add an end-to-end automated test.
-
-### Completion Criteria
-
-The major user flows and failure cases are covered by automated tests.
-
----
-
-## Phase 14 — Documentation and Packaging
-
-### Tasks
-
-- [x] Create or update `README.md`.
-- [x] Document installation.
-- [x] Document how to start the server.
-- [x] Document how to use the browser client.
-- [x] Document how to use the terminal client.
-- [x] Document the REST API.
-- [x] Document how to write a student bot.
-- [x] Provide example requests and responses.
-- [x] Document scoring.
-- [x] Document evaluation rules.
-- [x] Document leaderboard behavior.
-- [x] Add dependency information such as `requirements.txt` or `pyproject.toml`.
-- [x] Verify that a fresh installation works from the documented instructions.
-
-### Completion Criteria
-
-A new user can clone the project, install dependencies, start the server, play from the terminal or browser, and run a sample bot using only the documentation.
-
----
-
-# Optional Future Phases
-
-These should not be implemented until the core project is stable.
-
-## Persistent Storage
-
-- [ ] Store games in a database.
-- [ ] Store evaluations in a database.
-- [ ] Persist leaderboard results.
-
-## Accounts and Authentication
-
-- [ ] Student accounts.
-- [ ] API keys or tokens.
-- [ ] Authenticated evaluation submissions.
-
-## Tournament Mode
-
-- [ ] Batch evaluation of multiple bots.
-- [ ] Scheduled tournaments.
-- [ ] Tournament history.
-- [ ] Public results page.
-
-## Advanced Bot Analysis
-
-- [ ] Entropy-based guessing.
-- [ ] Information-gain strategies.
-- [ ] Performance charts.
-- [ ] Per-difficulty statistics.
-- [ ] Head-to-head bot comparisons.
-
-## Multiplayer
-
-- [ ] Human-vs-human modes.
-- [ ] Custom words.
-- [ ] Spectator mode.
-
----
-
-# Recommended Development Order
-
-Use this order unless there is a compelling reason to change it:
-
-1. Core Game Engine
-2. Word Management
-3. REST Server
-4. Human Terminal Client
-5. Browser Client
-6. Reference Automated Clients
-7. Dictionary-Based Bot
-8. Evaluation Mode
-9. Scoring
-10. Leaderboard
-11. Evaluation Integrity
-12. Logging and Replay
-13. Full Testing
-14. Documentation and Packaging
+1. Core game engine
+2. Word lists and difficulty
+3. Flask REST API
+4. Browser client
+5. Assignment verification
+6. Packaging
+7. Cloud deployment
 
 The project should remain runnable after every completed phase.
