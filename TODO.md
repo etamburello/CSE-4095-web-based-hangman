@@ -115,20 +115,20 @@ The game engine still does not import Flask.
 
 ### Tasks
 
-- [ ] Create `server.py` and `requirements.txt` with Flask.
-- [ ] Create the Flask application and an in-memory store of active games.
-- [ ] Generate a unique id for each game.
-- [ ] Keep a separate `HangmanGame` for each id.
-- [ ] Implement `POST /api/games` with a JSON body `{"difficulty": "medium"}`.
-- [ ] Select the hidden word on the server from the requested difficulty.
-- [ ] Implement `GET /api/games/{game_id}`.
-- [ ] Implement `POST /api/games/{game_id}/guess` with a JSON body `{"letter": "e"}`.
-- [ ] Validate difficulty and guess input.
-- [ ] Return JSON for success and error responses.
-- [ ] Return `201`, `200`, `400`, and `404` as defined above.
-- [ ] Handle an unknown game id, a missing body, and malformed JSON.
-- [ ] Omit the hidden word from every response while `status` is `playing`.
-- [ ] Add API tests that play through the HTTP interface only.
+- [x] Create `server.py` and `requirements.txt` with Flask.
+- [x] Create the Flask application and an in-memory store of active games.
+- [x] Generate a unique id for each game.
+- [x] Keep a separate `HangmanGame` for each id.
+- [x] Implement `POST /api/games` with a JSON body `{"difficulty": "medium"}`.
+- [x] Select the hidden word on the server from the requested difficulty.
+- [x] Implement `GET /api/games/{game_id}`.
+- [x] Implement `POST /api/games/{game_id}/guess` with a JSON body `{"letter": "e"}`.
+- [x] Validate difficulty and guess input.
+- [x] Return JSON for success and error responses.
+- [x] Return `201`, `200`, `400`, and `404` as defined above.
+- [x] Handle an unknown game id, a missing body, and malformed JSON.
+- [x] Omit the hidden word from every response while `status` is `playing`.
+- [x] Add API tests that play through the HTTP interface only.
 
 ### Completion Criteria
 
